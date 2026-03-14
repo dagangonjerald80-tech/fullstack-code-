@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Patient from "./Patient";
-import Doctor from "./Doctor";
-import Appointment from "./Appointment";
-import Login from "./Login";
-import Dashboard from "./Dashboard";
+import Patient from "./components/Patient";
+import Doctor from "./components/Doctor";
+import Appointment from "./components/Appointment";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
 import { Plus, Home, UserRound, Stethoscope, Calendar, Settings, Bell } from "lucide-react";
 
 const App = () => {

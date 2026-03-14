@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, Stethoscope, CalendarCheck, TrendingUp, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  trend?: string;
-  trendUp?: boolean;
-  colorClass: string;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp, colorClass }) => (
+const StatCard = ({ title, value, icon, trend, trendUp, colorClass }) => (
   <div className="bg-white p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
     {/* Decorative background blob */}
     <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-10 blur-2xl group-hover:scale-150 transition-transform duration-500 ${colorClass}`}></div>
@@ -34,20 +26,22 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp,
   </div>
 );
 
-const Dashboard: React.FC<{
-  onNavigate?: (tab: string) => void;
-}> = ({ onNavigate }) => {
-  const [patientsCount, setPatientsCount] = useState<number>(0);
-  const [doctorsCount, setDoctorsCount] = useState<number>(0);
-  const [appointmentsCount, setAppointmentsCount] = useState<number>(0);
-  const [todayAppointments, setTodayAppointments] = useState<number>(0);
-  const [recentPatients, setRecentPatients] = useState<any[]>([]);
-  const [topIllnesses, setTopIllnesses] = useState<{name: string, count: number}[]>([]);
+const Dashboard = ({ onNavigate }) => {
+  const [patientsCount, setPatientsCount] = useState(0);
+  const [doctorsCount, setDoctorsCount] = useState(0);
+  const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [todayAppointments, setTodayAppointments] = useState(0);
+  const [recentPatients, setRecentPatients] = useState([]);
+  const [topIllnesses, setTopIllnesses] = useState([]);
+  const [weeklyAppointments, setWeeklyAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const API_APPOINTMENT = "http://127.0.0.1:8000/api/appointments/";
   const API_PATIENT = "http://127.0.0.1:8000/api/patients/";
   const API_DOCTOR = "http://127.0.0.1:8000/api/doctors/";
+
+  // Colors for our pie chart
+  const COLORS = ['#3b82f6', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,17 +61,35 @@ const Dashboard: React.FC<{
         setAppointmentsCount(appointments.length);
 
         // Calculate today's appointments
-        const today = new Date().toISOString().split('T')[0];
-        const todaysApts = appointments.filter((app: any) => app.date === today);
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0];
+        const todaysApts = appointments.filter((app) => app.date === todayString);
         setTodayAppointments(todaysApts.length);
 
         // Get 3 most recent patients for activity
         const sortedPatients = [...patients].reverse().slice(0, 3);
         setRecentPatients(sortedPatients);
 
-        // Calculate top illnesses
-        const illnessCounts: Record<string, number> = {};
-        patients.forEach((p: any) => {
+        // Build data for Bar Chart (Last 7 Days Appointments)
+        const last7Days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(today.getDate() - i);
+          // format as simple string for chart: 'Mon', 'Tue' etc.
+          const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+          const dateString = d.toISOString().split('T')[0];
+          
+          const count = appointments.filter(a => a.date === dateString).length;
+          last7Days.push({
+            name: dayName,
+            Appointments: count
+          });
+        }
+        setWeeklyAppointments(last7Days);
+
+        // Calculate top illnesses for Donut Chart
+        const illnessCounts = {};
+        patients.forEach((p) => {
           if (p.illness) {
             const illnessName = p.illness.trim();
             illnessCounts[illnessName] = (illnessCounts[illnessName] || 0) + 1;
@@ -264,4 +276,3 @@ const Dashboard: React.FC<{
 };
 
 export default Dashboard;
-
