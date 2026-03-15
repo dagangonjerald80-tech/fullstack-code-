@@ -80,19 +80,10 @@ WSGI_APPLICATION = 'hospital_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# settings.py
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # PostgreSQL backend
-        'NAME': 'hospital_system',               # Database name
-        'USER': 'postgres',               # Database username
-        'PASSWORD': '123',       # Database password
-        'HOST': 'localhost',                        # Database host (use IP or domain if remote)
-        'PORT': '5432',                              # Default PostgreSQL port
-        'OPTIONS': {
-            'connect_timeout': 10,                  # Optional: connection timeout in seconds
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -113,9 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
-# Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
